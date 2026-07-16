@@ -154,3 +154,52 @@ docker compose -f docker/docker-compose-superset.yml down
 docker compose -f docker/docker-compose-spark.yml down
 docker compose -f docker/docker-compose-hdfs.yml down
 ```
+
+---
+
+## Implementation Notes
+
+The repository includes an implementation for the Phase 2 pipeline in:
+
+- `processing/analysis.py`
+- `visualization/register_tables.py`
+- `reports/REPORT.md`
+
+### Run the pipeline
+
+Download the Olist dataset first:
+
+```bash
+python scripts/download_dataset.py
+```
+
+Run the Spark pipeline locally:
+
+```bash
+spark-submit processing/analysis.py --input data/raw --output data/processed
+```
+
+Run the Spark pipeline against HDFS from the Docker Spark container:
+
+```bash
+docker exec -it spark-master spark-submit /app/processing/analysis.py \
+  --input /app/data/raw \
+  --output hdfs://namenode:9000/olist
+```
+
+Register the Gold Parquet tables for SQL/Superset access:
+
+```bash
+docker exec -it spark-master spark-submit /app/visualization/register_tables.py \
+  --gold-path hdfs://namenode:9000/olist/gold \
+  --database olist_gold
+```
+
+The pipeline creates:
+
+- Bronze Parquet tables under `bronze/`
+- Silver cleaned Parquet tables under `silver/`
+- Gold fact/dimension Parquet tables under `gold/`
+- Business-question summaries under `reports/`
+
+Use the generated Gold tables to build Superset charts for monthly revenue, category revenue, seller performance, customer-state sales, delivery time, payment trends, and review score by category.
