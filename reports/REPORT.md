@@ -99,7 +99,7 @@ bash scripts/setup_network.sh
 docker compose -f docker/docker-compose-hdfs.yml up -d
 docker compose -f docker/docker-compose-spark.yml up -d
 
-docker exec -it spark-master spark-submit /app/processing/analysis.py \
+docker exec -it spark-master /spark/bin/spark-submit /app/processing/analysis.py \
   --input /app/data/raw \
   --output hdfs://namenode:9000/olist
 ```
@@ -107,10 +107,25 @@ docker exec -it spark-master spark-submit /app/processing/analysis.py \
 ### 4. Register Gold tables for Superset
 
 ```bash
-docker exec -it spark-master spark-submit /app/visualization/register_tables.py \
+docker exec -it spark-master /spark/bin/spark-submit /app/visualization/register_tables.py \
   --gold-path hdfs://namenode:9000/olist/gold \
   --database olist_gold
 ```
+
+### 5. Validate generated outputs
+
+```bash
+docker exec -it spark-master /spark/bin/spark-submit /app/scripts/validate_outputs.py \
+  --output hdfs://namenode:9000/olist
+```
+
+Validation result from the completed run:
+
+- Bronze tables validated: 9
+- Silver tables validated: 9
+- Gold tables validated: 10
+- Report summaries validated: 7
+- Geolocation cleanup validated: `1,000,163 -> 738,332` rows
 
 Superset connection suggestion:
 
@@ -123,6 +138,7 @@ hive://spark-thriftserver:10000/olist_gold
 For final submission, add screenshots or command outputs for:
 
 - Spark job completion output
+- Output validation script completion output
 - Bronze/Silver/Gold Parquet folders
 - Geolocation cleanup: `1,000,163 -> 738,332` rows after exact duplicate removal
 - HDFS NameNode or MinIO bucket file listing
