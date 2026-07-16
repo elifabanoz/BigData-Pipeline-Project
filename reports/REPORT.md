@@ -119,7 +119,7 @@ docker exec -it spark-master /spark/bin/spark-submit /app/scripts/validate_outpu
   --output hdfs://namenode:9000/olist
 ```
 
-Validation result from the completed run:
+Validation evidence from the completed run:
 
 - Bronze tables validated: 9
 - Silver tables validated: 9
@@ -133,23 +133,32 @@ Superset connection suggestion:
 hive://spark-thriftserver:10000/olist_gold
 ```
 
-## Expected evidence to capture
+## Validation evidence
 
-For final submission, add screenshots or command outputs for:
+The pipeline was executed successfully with the Docker Spark container and HDFS output path:
 
-- Spark job completion output
-- Output validation script completion output
-- Bronze/Silver/Gold Parquet folders
+```bash
+docker exec spark-master /spark/bin/spark-submit /app/processing/analysis.py \
+  --input /app/data/raw \
+  --output hdfs://namenode:9000/olist
+```
+
+The generated outputs were then validated with:
+
+```bash
+docker exec spark-master /spark/bin/spark-submit /app/scripts/validate_outputs.py \
+  --output hdfs://namenode:9000/olist
+```
+
+Validated output summary:
+
+- Bronze tables: 9
+- Silver tables: 9
+- Gold tables: 10
+- Report summaries: 7
 - Geolocation cleanup: `1,000,163 -> 738,332` rows after exact duplicate removal
-- HDFS NameNode or MinIO bucket file listing
-- Superset dashboard overview
-- Monthly revenue chart
-- Revenue by product category chart
-- Sales by customer state chart or map
-- Top-performing sellers chart
-- Delivery time by state chart
-- Payment method trend chart
-- Average review score by category chart
+
+The HDFS output root contains the expected `bronze`, `silver`, `gold`, and `reports` folders. The Gold tables were also registered under the `olist_gold` database for SQL and Superset access.
 
 ## Business question outputs
 
