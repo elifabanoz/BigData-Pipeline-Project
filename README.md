@@ -182,7 +182,7 @@ spark-submit processing/analysis.py --input data/raw --output data/processed
 Run the Spark pipeline against HDFS from the Docker Spark container:
 
 ```bash
-docker exec -it spark-master spark-submit /app/processing/analysis.py \
+docker exec -it spark-master /spark/bin/spark-submit /app/processing/analysis.py \
   --input /app/data/raw \
   --output hdfs://namenode:9000/olist
 ```
@@ -190,9 +190,16 @@ docker exec -it spark-master spark-submit /app/processing/analysis.py \
 Register the Gold Parquet tables for SQL/Superset access:
 
 ```bash
-docker exec -it spark-master spark-submit /app/visualization/register_tables.py \
+docker exec -it spark-master /spark/bin/spark-submit /app/visualization/register_tables.py \
   --gold-path hdfs://namenode:9000/olist/gold \
   --database olist_gold
+```
+
+Validate the generated output folders and row counts:
+
+```bash
+docker exec -it spark-master /spark/bin/spark-submit /app/scripts/validate_outputs.py \
+  --output hdfs://namenode:9000/olist
 ```
 
 The pipeline creates:
