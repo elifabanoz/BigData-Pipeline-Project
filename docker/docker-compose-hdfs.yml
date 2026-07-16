@@ -2,7 +2,7 @@ version: '3.8'
 
 # HDFS Infrastructure for Olist Big Data Pipeline
 # Web UI:  http://localhost:9870  (NameNode)
-# HDFS:    hdfs://namenode:9000
+# HDFS:    hdfs://namenode:9000 inside Docker, hdfs://localhost:9002 from host
 
 services:
   namenode:
@@ -12,7 +12,7 @@ services:
     restart: unless-stopped
     ports:
       - "9870:9870"   # NameNode Web UI
-      - "9000:9000"   # HDFS API port
+      - "9002:9000"   # HDFS API port exposed on host to avoid MinIO port conflicts
     volumes:
       - hadoop_namenode:/hadoop/dfs/name
     environment:

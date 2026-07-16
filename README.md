@@ -144,7 +144,7 @@ docker compose -f docker/docker-compose-superset.yml up -d
 | Service         | URL                       | Credentials   |
 |-----------------|---------------------------|---------------|
 | HDFS NameNode   | http://localhost:9870     |               |
-| Spark Master    | http://localhost:8080     |               |
+| Spark Master    | http://localhost:8082     |               |
 | Superset        | http://localhost:8088     | admin / admin |
 
 **3. Stop everything**
